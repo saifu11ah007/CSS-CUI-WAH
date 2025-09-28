@@ -1,15 +1,13 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
-const connectDB = require('../config/db');
-const signupRouter = require('../routes/signupRouter');
-const serverless = require('serverless-http');
+const connectDB = require('./config/db');
+const signupRouter = require('./routes/signupRouter');
 
 dotenv.config();
 
 const app = express();
 
-// Middleware
 app.use(express.json());
 app.use(cors({
   origin: '*',
@@ -18,15 +16,14 @@ app.use(cors({
   credentials: true
 }));
 
-// Routes
 app.get('/', (req, res) => res.send('CSS'));
 app.use('/signup', signupRouter);
 
-// Connect to MongoDB
 async function startServer() {
   try {
     await connectDB();
     console.log('Connected to MongoDB');
+    app.listen(3000, () => console.log('Server running on http://localhost:3000'));
   } catch (error) {
     console.error('Failed to connect to MongoDB:', error);
     process.exit(1);
@@ -34,6 +31,3 @@ async function startServer() {
 }
 
 startServer();
-
-// Export for Vercel serverless
-module.exports.handler = serverless(app);
