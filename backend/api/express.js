@@ -23,7 +23,7 @@ app.get('/', (req, res) => res.send('CSS'));
 app.use('/signup', signupRouter);
 
 // Connect to MongoDB
-async function startServer() {
+async function startServer() {w
   try {
     await connectDB();
     console.log('Connected to MongoDB');
