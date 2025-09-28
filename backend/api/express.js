@@ -17,5 +17,5 @@ app.get("/api/hello", (req, res) => {
   res.json({ message: "Hello from Express on Vercel 🔥" });
 });
 
-// Export for Vercel serverless
+// Export for Vercel serverless (CommonJS style)
 module.exports.handler = serverless(app);
