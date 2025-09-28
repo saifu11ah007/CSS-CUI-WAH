@@ -16,6 +16,9 @@ app.use("/api/signup", signupRouter); // Your existing signup routes
 app.get("/api/hello", (req, res) => {
   res.json({ message: "Hello from Express on Vercel 🔥" });
 });
+export default function handler(req, res) {
+  res.status(200).json({ message: "PakPorter backend is alive 🚀" });
+}
 
 // Export for Vercel serverless
 module.exports.handler = serverless(app);
