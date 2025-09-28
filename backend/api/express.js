@@ -1,7 +1,7 @@
 const express = require("express");
 const serverless = require("serverless-http");
-const signupRouter = require("../routes/signupRouter");
-const connectDB = require("../config/db");
+const signupRouter = require("../routes/signupRouter.js");
+const connectDB = require("../config/db.js");
 
 const app = express();
 
