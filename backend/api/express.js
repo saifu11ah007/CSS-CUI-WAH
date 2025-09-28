@@ -1,21 +1,34 @@
-const express = require("express");
-const serverless = require("serverless-http");
-const signupRouter = require("../routes/signupRouter.js");
-const connectDB = require("../config/db.js");
+import express from 'express';
+       import cors from 'cors';
+       import dotenv from 'dotenv';
+       import connectDB from '../config/db.js';
+       import signupRouter from '../routes/signupRouter.js';
+       import serverless from 'serverless-http';
+       dotenv.config();
+       const app = express();
 
-const app = express();
+       app.use(express.json());
+       app.use(cors({ 
+         origin: '*',
+         methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+         allowedHeaders: ['Content-Type', 'Authorization'], // Allow these headers
+          credentials: true
+       }));
+       app.get('/', (req, res) => res.send('CSS'));
 
-// Middleware
-app.use(express.json());
+       app.use('/signup', signupRouter);
 
-// Connect to database (e.g., MongoDB)
-connectDB();
+       async function startServer() {
+         try {
+           await connectDB();
+           console.log('Connected to MongoDB');
+         } catch (error) {
+           console.error('Failed to connect to MongoDB:', error);
+           process.exit(1);
+         }
+       }
 
-// Routes
-app.use("/api/signup", signupRouter);
-app.get("/api/hello", (req, res) => {
-  res.json({ message: "Hello from Express on Vercel 🔥" });
-});
+       startServer();
 
-// Export for Vercel serverless (CommonJS style)
-module.exports.handler = serverless(app);
+       export default app;
+       export const handler = serverless(app);
