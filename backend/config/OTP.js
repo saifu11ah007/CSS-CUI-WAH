@@ -8,6 +8,8 @@ const sendEmailOTP = async (email, otp) => {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
       },
+      logger: true,   // ✅ enable logs
+      debug: true     // ✅ show SMTP conversation
     });
 
     const mailOptions = {
@@ -19,9 +21,11 @@ const sendEmailOTP = async (email, otp) => {
 
     const info = await transporter.sendMail(mailOptions);
     console.log('✅ OTP Email sent to:', email);
-    console.log('Response:', info.response);
+    console.log('MessageId:', info.messageId);
+    console.log('SMTP Response:', info.response);
+
   } catch (err) {
-    console.error('❌ Error sending OTP email:', err.message);
+    console.error('❌ Error sending OTP email:', err);
     throw err;
   }
 };
