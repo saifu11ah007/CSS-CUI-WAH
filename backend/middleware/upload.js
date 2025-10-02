@@ -2,7 +2,7 @@ const multer = require('multer');
 const { put } = require('@vercel/blob');
 
 const upload = multer({
-  storage: multer.memoryStorage(),
+  storage: multer.memoryStorage(), // Store in memory for Blob upload
 });
 
 exports.saveToBlob = async (req, res, next) => {
@@ -14,7 +14,7 @@ exports.saveToBlob = async (req, res, next) => {
         token: process.env.BLOB_READ_WRITE_TOKEN,
         addRandomSuffix: true,
       });
-      req.files.universityIdCard[0].key = url;
+      req.files.universityIdCard[0].key = url; // Store Blob URL in req.files
       console.log(`Uploaded to Blob: ${url}`);
     } else {
       return res.status(400).json({ message: 'No universityIdCard file provided' });
