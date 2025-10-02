@@ -34,3 +34,6 @@ async function startServer() {
 }
 
 startServer();
+
+// Export for Vercel serverless
+module.exports = serverless(app); // Changed from module.exports.handler
