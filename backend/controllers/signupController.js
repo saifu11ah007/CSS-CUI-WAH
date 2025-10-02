@@ -8,10 +8,14 @@ const tempUserStore = new Map();
 
 // Helper to validate registration number
 const validateRegNo = (regNo) => {
-  const regNoPattern = /^(FA|SP)(\d{2})-(BSE|BCS|BAI|BME|CVE|BBA|BAF|BEE|BCE|BPY)-\d{3}$/;
-  if (!regNoPattern.test(regNo)) return false;
+  // Case-insensitive regex
+  const regNoPattern = /^(FA|SP)(\d{2})-(BCS|BSE|BAI|BME|CVE|BBA|BAF|BEE|BCE|BPY)-\d{3}$/i;
+  if (!regNoPattern.test(regNo)) {
+    console.log(`Invalid regNo format: ${regNo}`);
+    return false;
+  }
   
-  const batchYear = parseInt(regNo.match(/^(FA|SP)(\d{2})/)[2], 10) + 2000;
+  const batchYear = parseInt(regNo.match(/^(FA|SP)(\d{2})/i)[2], 10) + 2000;
   const currentYear = new Date().getFullYear();
   return batchYear >= 2022 && batchYear <= currentYear;
 };
@@ -22,14 +26,34 @@ const generateEmail = (regNo) => `${regNo.toLowerCase()}@cuiwah.edu.pk`;
 // Helper to generate 6-digit OTP
 const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString();
 
+// Helper to transform registrationNumber for User schema
+const transformRegNoForSchema = (regNo) => {
+  // Case-insensitive regex, handle FA23-BSE-007 to 2023BSE007
+  const match = regNo.match(/^(FA|SP)(\d{2})-(BCS|BSE|BAI|BME|CVE|BBA|BAF|BEE|BCE|BPY)-(\d{3})$/i);
+  if (!match) {
+    console.log(`transformRegNoForSchema failed for: ${regNo}`);
+    return regNo; // Fallback (will likely fail schema validation)
+  }
+  const [, , year, program, number] = match;
+  const transformed = `20${year}${program.toUpperCase()}${number}`;
+  console.log(`Transformed ${regNo} to ${transformed}`);
+  return transformed;
+};
+
 // Signup initialization
 const signupInit = async (req, res) => {
   try {
-    const { registrationNumber, gender, department, program, password, verificationMethod } = req.body;
+    const { registrationNumber, name, gender, department, program, password, verificationMethod } = req.body;
+
+    // Normalize registrationNumber (convert to uppercase for consistency)
+    const normalizedRegNo = registrationNumber.toUpperCase();
 
     // Validate inputs
-    if (!registrationNumber || !validateRegNo(registrationNumber)) {
+    if (!normalizedRegNo || !validateRegNo(normalizedRegNo)) {
       return res.status(400).json({ message: 'Invalid registration number format' });
+    }
+    if (!name) {
+      return res.status(400).json({ message: 'Name is required' });
     }
     if (!['Male', 'Female'].includes(gender)) {
       return res.status(400).json({ message: 'Gender must be Male or Female' });
@@ -42,7 +66,7 @@ const signupInit = async (req, res) => {
     }
 
     // Check if regNo already exists
-    const existingUser = await User.findOne({ registrationNumber });
+    const existingUser = await User.findOne({ registrationNumber: transformRegNoForSchema(normalizedRegNo) });
     if (existingUser) {
       return res.status(409).json({ message: 'Registration number already exists' });
     }
@@ -51,12 +75,13 @@ const signupInit = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Generate email
-    const email = generateEmail(registrationNumber);
+    const email = generateEmail(normalizedRegNo);
 
     // Store temp user data
     const tempUserData = {
-      registrationNumber,
+      registrationNumber: normalizedRegNo,
       email,
+      name,
       gender,
       department,
       program,
@@ -64,10 +89,12 @@ const signupInit = async (req, res) => {
       verificationMethod,
       createdAt: new Date(),
     };
-    tempUserStore.set(registrationNumber, tempUserData);
+    tempUserStore.set(normalizedRegNo, tempUserData);
+    console.log(`Stored temp user: ${normalizedRegNo}`);
 
     res.status(200).json({ message: 'Initial signup successful, proceed to verification', email });
   } catch (error) {
+    console.error('signupInit error:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
@@ -77,7 +104,7 @@ const sendOtp = async (req, res) => {
   try {
     const { registrationNumber } = req.body;
 
-    const tempUser = tempUserStore.get(registrationNumber);
+    const tempUser = tempUserStore.get(registrationNumber.toUpperCase());
     if (!tempUser || tempUser.verificationMethod !== 'OTP') {
       return res.status(400).json({ message: 'Invalid or missing temporary user data' });
     }
@@ -88,13 +115,14 @@ const sendOtp = async (req, res) => {
 
     // Update temp store with OTP
     tempUser.otp = { code: otp, expiresAt };
-    tempUserStore.set(registrationNumber, tempUser);
+    tempUserStore.set(registrationNumber.toUpperCase(), tempUser);
 
     // Send OTP
     await sendEmailOTP(tempUser.email, otp);
 
     res.status(200).json({ message: 'OTP sent successfully' });
   } catch (error) {
+    console.error('sendOtp error:', error);
     res.status(500).json({ message: 'Failed to send OTP', error: error.message });
   }
 };
@@ -104,8 +132,10 @@ const verifyOtp = async (req, res) => {
   try {
     const { registrationNumber, otp } = req.body;
 
-    const tempUser = tempUserStore.get(registrationNumber);
+    const normalizedRegNo = registrationNumber.toUpperCase();
+    const tempUser = tempUserStore.get(normalizedRegNo);
     if (!tempUser || tempUser.verificationMethod !== 'OTP') {
+      console.log(`No temp user found for: ${normalizedRegNo}`);
       return res.status(400).json({ message: 'Invalid or missing temporary user data' });
     }
 
@@ -115,9 +145,10 @@ const verifyOtp = async (req, res) => {
     }
 
     // Save user to database
+    const transformedRegNo = transformRegNoForSchema(normalizedRegNo);
     const user = new User({
-      registrationNumber: tempUser.registrationNumber,
-      name: tempUser.name || tempUser.registrationNumber, // Name not provided in input, using regNo as fallback
+      registrationNumber: transformedRegNo,
+      name: tempUser.name || transformedRegNo,
       gender: tempUser.gender,
       department: tempUser.department,
       program: tempUser.program,
@@ -127,12 +158,14 @@ const verifyOtp = async (req, res) => {
     });
 
     await user.save();
+    console.log(`User saved: ${transformedRegNo}`);
 
     // Clear temp data
-    tempUserStore.delete(registrationNumber);
+    tempUserStore.delete(normalizedRegNo);
 
     res.status(201).json({ message: 'User registered successfully' });
   } catch (error) {
+    console.error('verifyOtp error:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
@@ -141,26 +174,23 @@ const verifyOtp = async (req, res) => {
 const uploadUniId = async (req, res) => {
   try {
     const { registrationNumber } = req.body;
-    const file = req.file;
 
-    const tempUser = tempUserStore.get(registrationNumber);
+    const normalizedRegNo = registrationNumber.toUpperCase();
+    const tempUser = tempUserStore.get(normalizedRegNo);
     if (!tempUser || tempUser.verificationMethod !== 'UniversityID') {
       return res.status(400).json({ message: 'Invalid or missing temporary user data' });
     }
 
-    if (!file) {
-      return res.status(400).json({ message: 'No file uploaded' });
-    }
-
-    // Store file URL (assuming cloud storage or local path)
+    // Simulate file upload (replace with cloud storage in production)
     tempUser.universityIdCard = {
-      fileUrl: file.path, // Adjust based on your file upload setup
+      fileUrl: 'test-file-placeholder.jpg',
       verified: false,
     };
-    tempUserStore.set(registrationNumber, tempUser);
+    tempUserStore.set(normalizedRegNo, tempUser);
 
     res.status(200).json({ message: 'University ID uploaded, awaiting admin approval' });
   } catch (error) {
+    console.error('uploadUniId error:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
@@ -170,7 +200,8 @@ const approveUniId = async (req, res) => {
   try {
     const { registrationNumber } = req.body;
 
-    const tempUser = tempUserStore.get(registrationNumber);
+    const normalizedRegNo = registrationNumber.toUpperCase();
+    const tempUser = tempUserStore.get(normalizedRegNo);
     if (!tempUser || tempUser.verificationMethod !== 'UniversityID') {
       return res.status(400).json({ message: 'Invalid or missing temporary user data' });
     }
@@ -181,12 +212,13 @@ const approveUniId = async (req, res) => {
 
     // Mark as verified
     tempUser.universityIdCard.verified = true;
-    tempUserStore.set(registrationNumber, tempUser);
+    tempUserStore.set(normalizedRegNo, tempUser);
 
     // Save user to database
+    const transformedRegNo = transformRegNoForSchema(normalizedRegNo);
     const user = new User({
-      registrationNumber: tempUser.registrationNumber,
-      name: tempUser.name || tempUser.registrationNumber, // Name not provided in input, using regNo as fallback
+      registrationNumber: transformedRegNo,
+      name: tempUser.name || transformedRegNo,
       gender: tempUser.gender,
       department: tempUser.department,
       program: tempUser.program,
@@ -197,12 +229,14 @@ const approveUniId = async (req, res) => {
     });
 
     await user.save();
+    console.log(`User saved after ID approval: ${transformedRegNo}`);
 
     // Clear temp data
-    tempUserStore.delete(registrationNumber);
+    tempUserStore.delete(normalizedRegNo);
 
     res.status(201).json({ message: 'User registered successfully after ID approval' });
   } catch (error) {
+    console.error('approveUniId error:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
