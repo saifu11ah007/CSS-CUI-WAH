@@ -181,14 +181,20 @@ const uploadUniId = async (req, res) => {
       return res.status(400).json({ message: 'Invalid or missing temporary user data' });
     }
 
-    // Simulate file upload (replace with cloud storage in production)
+    // Get uploaded file URL from middleware
+    const file = req.files.universityIdCard; // Assuming single file
+    if (!file || !file[0].key) {
+      return res.status(400).json({ message: 'No universityIdCard file uploaded or upload failed' });
+    }
+
+    // Store file URL
     tempUser.universityIdCard = {
-      fileUrl: 'test-file-placeholder.jpg',
+      fileUrl: file[0].key,
       verified: false,
     };
     tempUserStore.set(normalizedRegNo, tempUser);
 
-    res.status(200).json({ message: 'University ID uploaded, awaiting admin approval' });
+    res.status(200).json({ message: 'University ID uploaded, awaiting admin approval', fileUrl: file[0].key });
   } catch (error) {
     console.error('uploadUniId error:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
