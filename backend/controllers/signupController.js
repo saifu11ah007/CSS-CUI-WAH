@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const { sendEmailOTP } = require('../config/OTP.js');
 const User = require('../models/User.js');
 
@@ -160,10 +161,31 @@ const verifyOtp = async (req, res) => {
     await user.save();
     console.log(`User saved: ${transformedRegNo}`);
 
+    // Generate JWT
+    const token = jwt.sign(
+      {
+        id: user._id,
+        registrationNumber: transformedRegNo,
+        program: user.program,
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+
     // Clear temp data
     tempUserStore.delete(normalizedRegNo);
 
-    res.status(201).json({ message: 'User registered successfully' });
+    // Return success response
+    res.status(201).json({
+      message: 'User registered and logged in successfully',
+      token,
+      user: {
+        registrationNumber: normalizedRegNo,
+        email: user.email,
+        gender: user.gender,
+        program: user.program,
+      },
+    });
   } catch (error) {
     console.error('verifyOtp error:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
@@ -182,43 +204,10 @@ const uploadUniId = async (req, res) => {
     }
 
     // Get uploaded file URL from middleware
-    const file = req.files.universityIdCard; // Assuming single file
+    const file = req.files.universityIdCard;
     if (!file || !file[0].key) {
       return res.status(400).json({ message: 'No universityIdCard file uploaded or upload failed' });
     }
-
-    // Store file URL
-    tempUser.universityIdCard = {
-      fileUrl: file[0].key,
-      verified: false,
-    };
-    tempUserStore.set(normalizedRegNo, tempUser);
-
-    res.status(200).json({ message: 'University ID uploaded, awaiting admin approval', fileUrl: file[0].key });
-  } catch (error) {
-    console.error('uploadUniId error:', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
-  }
-};
-
-// Approve University ID (Admin)
-const approveUniId = async (req, res) => {
-  try {
-    const { registrationNumber } = req.body;
-
-    const normalizedRegNo = registrationNumber.toUpperCase();
-    const tempUser = tempUserStore.get(normalizedRegNo);
-    if (!tempUser || tempUser.verificationMethod !== 'UniversityID') {
-      return res.status(400).json({ message: 'Invalid or missing temporary user data' });
-    }
-
-    if (!tempUser.universityIdCard || tempUser.universityIdCard.verified) {
-      return res.status(400).json({ message: 'No pending University ID for approval' });
-    }
-
-    // Mark as verified
-    tempUser.universityIdCard.verified = true;
-    tempUserStore.set(normalizedRegNo, tempUser);
 
     // Save user to database
     const transformedRegNo = transformRegNoForSchema(normalizedRegNo);
@@ -230,19 +219,43 @@ const approveUniId = async (req, res) => {
       program: tempUser.program,
       password: tempUser.password,
       verificationMethod: tempUser.verificationMethod,
-      universityIdCard: tempUser.universityIdCard,
+      universityIdCard: {
+        fileUrl: file[0].key,
+        verified: false, // Admin can review later
+      },
       isVerified: true,
     });
 
     await user.save();
-    console.log(`User saved after ID approval: ${transformedRegNo}`);
+    console.log(`User saved with ID upload: ${transformedRegNo}, URL: ${file[0].key}`);
+
+    // Generate JWT
+    const token = jwt.sign(
+      {
+        id: user._id,
+        registrationNumber: transformedRegNo,
+        program: user.program,
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
 
     // Clear temp data
     tempUserStore.delete(normalizedRegNo);
 
-    res.status(201).json({ message: 'User registered successfully after ID approval' });
+    // Return success response
+    res.status(201).json({
+      message: 'User registered and logged in successfully',
+      token,
+      user: {
+        registrationNumber: normalizedRegNo,
+        email: user.email,
+        gender: user.gender,
+        program: user.program,
+      },
+    });
   } catch (error) {
-    console.error('approveUniId error:', error);
+    console.error('uploadUniId error:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
@@ -252,5 +265,4 @@ module.exports = {
   sendOtp,
   verifyOtp,
   uploadUniId,
-  approveUniId,
 };
