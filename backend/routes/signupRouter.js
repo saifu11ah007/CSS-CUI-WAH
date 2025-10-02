@@ -10,9 +10,7 @@ const {
 const upload = require('../middleware/upload.js').default; // Default export from upload.js
 const saveToBlob = require('../middleware/upload.js').saveToBlob;
 
-const { loginUser } = require('../controllers/loginController');
-//login
-router.post('/auth/login', loginUser);
+
 //signup
 router.post('/auth/signup-init', signupInit);
 router.post('/auth/send-otp', sendOtp);
