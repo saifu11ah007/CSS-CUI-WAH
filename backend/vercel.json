@@ -1,7 +1,6 @@
 {
   "version": 2,
   "builds": [
-<<<<<<< HEAD
     {
       "src": "api/express.js",
       "use": "@vercel/node"
@@ -14,11 +13,3 @@
     }
   ]
 }
-=======
-    { "src": "api/*.js", "use": "@vercel/node" }
-  ],
-  "routes": [
-    { "src": "/api/(.*)", "dest": "api/$1.js" }
-  ]
-}
->>>>>>> 3bb531b15433f89fba74ed6b60144ef1928c4ee0
