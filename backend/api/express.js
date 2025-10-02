@@ -23,11 +23,7 @@ app.get('/', (req, res) => res.send('CSS'));
 app.use('/signup', signupRouter);
 
 // Connect to MongoDB
-<<<<<<< HEAD
 async function startServer() {
-=======
-async function startServer() {w
->>>>>>> 3bb531b15433f89fba74ed6b60144ef1928c4ee0
   try {
     await connectDB();
     console.log('Connected to MongoDB');
