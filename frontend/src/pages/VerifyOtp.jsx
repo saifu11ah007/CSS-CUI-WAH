@@ -188,4 +188,4 @@ export default function VerifyOtpPage() {
       `}</style>
     </div>
   );
-}s
+}
