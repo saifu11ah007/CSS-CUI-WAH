@@ -57,7 +57,7 @@ export default function SignupPage() {
   });
 
   // Available years: 2022-2025
-  const availableYears = [2022, 2023, 2024, 2025];
+  const availableYears = [22, 23, 24, 25];
 
   // All possible program codes from schema
   const availablePrograms = ['BCS', 'BSE', 'BAI', 'BME', 'CVE', 'BBA', 'BAF', 'BEE', 'BCE', 'BPY'];
@@ -273,8 +273,8 @@ export default function SignupPage() {
                   disabled={loading}
                 >
                   <option value="">Select Batch</option>
-                  <option value="FA">FA (Fall)</option>
-                  <option value="SP">SP (Spring)</option>
+                  <option value="FA">FA</option>
+                  <option value="SP">SP</option>
                 </select>
                 {errors.batch && <span className="error-text">{errors.batch}</span>}
 

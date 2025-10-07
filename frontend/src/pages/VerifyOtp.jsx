@@ -1,4 +1,4 @@
-// New: VerifyOtpPage.jsx (for /signup/verify-otp route)
+// Updated: VerifyOtpPage.jsx (for /signup/verify-otp route)
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -15,6 +15,14 @@ export default function VerifyOtpPage() {
   const [loading, setLoading] = useState(false);
   const [otpSent, setOtpSent] = useState(false);
   const [resendLoading, setResendLoading] = useState(false);
+
+  // Compute email from registrationNumber (matches backend generateEmail)
+  const computeEmail = (regNo) => {
+    if (!regNo) return '';
+    return `${regNo.toLowerCase()}@cuiwah.edu.pk`;
+  };
+
+  const email = computeEmail(registrationNumber);
 
   // Redirect back if no registrationNumber
   useEffect(() => {
@@ -39,7 +47,7 @@ export default function VerifyOtpPage() {
       const payload = { registrationNumber };
       await axios.post('https://css-cui-wah.vercel.app/signup/auth/send-otp', payload);
       setOtpSent(true);
-      setSuccess('OTP sent to your email! Check your inbox (and spam folder).');
+      setSuccess(`OTP sent to your email! Check ${email} (and spam folder).`);
     } catch (error) {
       const errorMsg = error.response?.data?.message || 'Failed to send OTP';
       setErrors({ general: errorMsg });
@@ -97,6 +105,7 @@ export default function VerifyOtpPage() {
         <div className="signup-section">
           <h2 className="form-title">OTP Verification</h2>
           <p className="regno-display">For: <strong>{registrationNumber}</strong></p>
+          {email && <p className="email-display">Email: <strong>{email}</strong></p>}
           
           {success && <div className="success-message">{success}</div>}
           {errors.general && <div className="error-message">{errors.general}</div>}
@@ -147,9 +156,19 @@ export default function VerifyOtpPage() {
       <style jsx>{`
         .regno-display {
           text-align: center;
-          margin-bottom: 20px;
+          margin-bottom: 10px;
           font-size: 1.1em;
           color: #555;
+        }
+        .email-display {
+          text-align: center;
+          margin-bottom: 20px;
+          font-size: 1em;
+          color: #666;
+          background: #f8f9fa;
+          padding: 10px;
+          border-radius: 5px;
+          border-left: 4px solid #007bff;
         }
         .resend-link {
           text-align: center;
@@ -169,4 +188,4 @@ export default function VerifyOtpPage() {
       `}</style>
     </div>
   );
-}
+}s
