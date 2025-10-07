@@ -1,33 +1,4 @@
 {
-<<<<<<< HEAD
-  "name": "backend",
-  "version": "1.0.0",
-  "type": "commonjs",
-  "main": "api/express.js",
-  "scripts": {
-    "start": "node api/express.js",
-    "dev": "vercel dev",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
-  "dependencies": {
-    "bcrypt": "^6.0.0",
-    "bcryptjs": "^3.0.2",
-    "cors": "^2.8.5",
-    "dotenv": "^17.2.2",
-    "express": "^5.1.0",
-    "express-fileupload": "^1.5.2",
-    "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.18.2",
-    "multer": "^2.0.2",
-    "nodemailer": "^7.0.6",
-    "serverless-http": "^4.0.0"
-  }
-}
-=======
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
@@ -37,10 +8,11 @@
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.12.2",
+    "lucide-react": "^0.544.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-router-dom": "^7.9.3",
-    "react-scripts": "5.0.1",
+    "react-scripts": "^5.0.1",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
@@ -66,6 +38,22 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@babel/plugin-transform-class-properties": "^7.27.1",
+    "@babel/plugin-transform-numeric-separator": "^7.27.1",
+    "@babel/plugin-transform-optional-chaining": "^7.27.1",
+    "@babel/plugin-transform-private-methods": "^7.27.1",
+    "@babel/plugin-transform-private-property-in-object": "^7.27.1",
+    "@eslint/config-array": "^0.21.0",
+    "@eslint/object-schema": "^2.1.6",
+    "@jridgewell/sourcemap-codec": "^1.5.5",
+    "@rollup/plugin-terser": "^0.4.4",
+    "autoprefixer": "^10.4.21",
+    "eslint": "^9.36.0",
+    "glob": "^10.4.5",
+    "postcss": "^8.5.6",
+    "rimraf": "^5.0.10",
+    "svgo": "^2.8.0"
   }
 }
->>>>>>> 3bb531b15433f89fba74ed6b60144ef1928c4ee0
