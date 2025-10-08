@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import SignupPage from './pages/SignupPage.jsx';
 import VerifyOtpPage from './pages/VerifyOtp.jsx';
+import LoginPage from './pages/LoginPage.jsx';
 import './index.css';  // Or App.css
 // Redirect logged-in users away from login/signup
 const RedirectIfLoggedIn = ({ children }) => {
@@ -27,7 +28,7 @@ function App() {
           path="/login"
           element={
             <RedirectIfLoggedIn>
-              <SignupPage />
+              <LoginPage />
             </RedirectIfLoggedIn>
           }
         />
