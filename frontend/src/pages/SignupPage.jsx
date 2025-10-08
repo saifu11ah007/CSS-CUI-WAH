@@ -219,7 +219,7 @@ export default function SignupPage() {
       <div className="header">
         <div className="logo-section">
           <div className="logo">
-            <img src="image.png" alt=""/>
+                <img src="/image.png" alt="COMSATS Sports Society Logo" />
           </div>
           <div className="university-name">
             <h1>COMSATS SPORTS</h1>
