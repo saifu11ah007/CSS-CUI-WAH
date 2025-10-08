@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
-const { sendEmailOTP } = require('../config/OTP.js');
+const sendEmailOTP  = require('../config/OTP.js');
 const User = require('../models/User.js');
 
 // In-memory store for temporary user data
