@@ -170,7 +170,7 @@ const verifyOtp = async (req, res) => {
   }
 };
 
-// Upload University ID - Now saves user immediately
+// Upload University ID
 const uploadUniId = async (req, res) => {
   try {
     const { registrationNumber } = req.body;
@@ -187,7 +187,40 @@ const uploadUniId = async (req, res) => {
       return res.status(400).json({ message: 'No universityIdCard file uploaded or upload failed' });
     }
 
-    // Save user to database immediately with the uploaded ID
+    // Store file URL
+    tempUser.universityIdCard = {
+      fileUrl: file[0].key,
+      verified: false,
+    };
+    tempUserStore.set(normalizedRegNo, tempUser);
+
+    res.status(200).json({ message: 'University ID uploaded, awaiting admin approval', fileUrl: file[0].key });
+  } catch (error) {
+    console.error('uploadUniId error:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+// Approve University ID (Admin)
+const approveUniId = async (req, res) => {
+  try {
+    const { registrationNumber } = req.body;
+
+    const normalizedRegNo = registrationNumber.toUpperCase();
+    const tempUser = tempUserStore.get(normalizedRegNo);
+    if (!tempUser || tempUser.verificationMethod !== 'UniversityID') {
+      return res.status(400).json({ message: 'Invalid or missing temporary user data' });
+    }
+
+    if (!tempUser.universityIdCard || tempUser.universityIdCard.verified) {
+      return res.status(400).json({ message: 'No pending University ID for approval' });
+    }
+
+    // Mark as verified
+    tempUser.universityIdCard.verified = true;
+    tempUserStore.set(normalizedRegNo, tempUser);
+
+    // Save user to database
     const transformedRegNo = transformRegNoForSchema(normalizedRegNo);
     const user = new User({
       registrationNumber: transformedRegNo,
@@ -197,57 +230,17 @@ const uploadUniId = async (req, res) => {
       program: tempUser.program,
       password: tempUser.password,
       verificationMethod: tempUser.verificationMethod,
-      universityIdCard: {
-        fileUrl: file[0].key,
-        verified: false, // Can be set to true if you want immediate verification
-      },
-      isVerified: true, // User is now verified immediately
+      universityIdCard: tempUser.universityIdCard,
+      isVerified: true,
     });
 
     await user.save();
-    console.log(`User saved with University ID: ${transformedRegNo}`);
+    console.log(`User saved after ID approval: ${transformedRegNo}`);
 
     // Clear temp data
     tempUserStore.delete(normalizedRegNo);
 
-    res.status(201).json({ 
-      message: 'User registered successfully with University ID', 
-      fileUrl: file[0].key 
-    });
-  } catch (error) {
-    console.error('uploadUniId error:', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
-  }
-};
-
-// Approve University ID (Admin) - Optional: Keep for manual verification if needed
-const approveUniId = async (req, res) => {
-  try {
-    const { registrationNumber } = req.body;
-    const normalizedRegNo = registrationNumber.toUpperCase();
-    const transformedRegNo = transformRegNoForSchema(normalizedRegNo);
-
-    // Find user in database
-    const user = await User.findOne({ registrationNumber: transformedRegNo });
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    if (!user.universityIdCard) {
-      return res.status(400).json({ message: 'No University ID found for this user' });
-    }
-
-    if (user.universityIdCard.verified) {
-      return res.status(400).json({ message: 'University ID already verified' });
-    }
-
-    // Mark ID as verified
-    user.universityIdCard.verified = true;
-    await user.save();
-
-    console.log(`University ID verified for user: ${transformedRegNo}`);
-
-    res.status(200).json({ message: 'University ID verified successfully' });
+    res.status(201).json({ message: 'User registered successfully after ID approval' });
   } catch (error) {
     console.error('approveUniId error:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
