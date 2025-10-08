@@ -12,7 +12,7 @@ const sendEmailOTP = async (email, otp) => {
     });
 
     const mailOptions = {
-      from: `"COMSATS Sports Society 🏅" <${process.env.EMAIL_USER}>`,
+      from: `"COMSATS Sports Society" <${process.env.EMAIL_FROM}>`,
       to: email,
       subject: "Your OTP Code - COMSATS Sports Society",
       html: `<h2>Your OTP is: <strong>${otp}</strong></h2><p>Use this code to verify your account for Sports Week registration.</p>`,
