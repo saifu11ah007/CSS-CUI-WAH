@@ -52,11 +52,11 @@ const userSchema = new mongoose.Schema(
       type: String,
       expiresAt: Date,
     },
-    universityIdCard: {
-      fileUrl: String, // path or cloud storage link
-      type: String,
-      verified: { type: Boolean, default: false },
-    },
+    // In User.js model
+universityIdCard: {
+  fileUrl: String,
+  verified: { type: Boolean, default: false }
+},
     isVerified: {
       type: Boolean,
       default: false,
