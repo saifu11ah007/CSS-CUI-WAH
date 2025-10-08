@@ -3,6 +3,7 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const connectDB = require('../config/db');
 const signupRouter = require('../routes/signupRouter');
+const loginRouter = require('../routes/loginRouter');
 
 dotenv.config({ quiet: true }); // Suppress extra logs
 
@@ -20,7 +21,7 @@ app.use(cors({
 // Routes
 app.get('/', (req, res) => res.send('CSS'));
 app.use('/signup', signupRouter);
-
+app.use('/login', loginRouter);
 // Connect to MongoDB (this runs on cold start)
 async function startServer() {
   try {
