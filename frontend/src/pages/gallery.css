@@ -9,27 +9,23 @@
 
 .reel-item {
   position: relative;
-  border-radius: 8px;
+  border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .reel-item:hover {
   transform: scale(1.05);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25);
 }
 
-.reel-item .instagram-media {
-  width: 100% !important;
-  max-width: 540px;
-  margin: 0 auto;
-}
-
-/* Ensure iframe inside blockquote is responsive */
-.reel-item iframe {
-  width: 100% !important;
-  height: 600px !important;
+.reel-item video {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  display: block;
+  border: none;
 }
 
 /* Responsive adjustments */
@@ -38,14 +34,10 @@
     grid-template-columns: 1fr;
     padding: 15px;
   }
-
-  .reel-item iframe {
-    height: 500px !important;
-  }
 }
 
 @media (max-width: 480px) {
-  .reel-item iframe {
-    height: 400px !important;
+  .reel-container {
+    display: hidden;
   }
 }
