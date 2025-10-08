@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import './login.css';
 
 export default function LoginPage() {
-  const [registrationNumber, setRegistrationNumber] = useState('');
+  const [batch, setBatch] = useState('');
+  const [department, setDepartment] = useState('');
+  const [number, setNumber] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -14,7 +16,7 @@ export default function LoginPage() {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-      navigate('/home');
+      navigate('/abc');
     }
   }, [navigate]);
 
@@ -23,10 +25,19 @@ export default function LoginPage() {
     setError('');
 
     // Validate inputs
-    if (!registrationNumber.trim() || !password.trim()) {
-      setError('Please fill in both registration number and password');
+    if (!batch || !department || !number || !password.trim()) {
+      setError('Please fill in all fields');
       return;
     }
+
+    // Validate 3-digit number
+    if (!/^\d{3}$/.test(number)) {
+      setError('Registration number must be a 3-digit number');
+      return;
+    }
+
+    // Format registration number
+    const registrationNumber = `${batch}-${department}-${number}`;
 
     setIsLoading(true);
 
@@ -41,14 +52,17 @@ export default function LoginPage() {
       localStorage.setItem('user', JSON.stringify(response.data.user));
       
       // Clear form
-      setRegistrationNumber('');
+      setBatch('');
+      setDepartment('');
+      setNumber('');
       setPassword('');
       
-      // Redirect to home
-      navigate('/home');
+      // Redirect to abc
+      navigate('/abc');
     } catch (err) {
       setIsLoading(false);
       setPassword(''); // Clear password field on error
+      setNumber(''); // Clear number field on error
       
       if (err.response) {
         setError(err.response.data.message || 'Invalid registration number or password');
@@ -62,6 +76,16 @@ export default function LoginPage() {
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     e.currentTarget.classList.add('active');
   };
+
+  // Batch options (SP22 to FA25)
+  const batchOptions = [
+    'SP22', 'FA22', 'SP23', 'FA23', 'SP24', 'FA24', 'SP25', 'FA25'
+  ];
+
+  // Department options
+  const departmentOptions = [
+    'BSE', 'BCS', 'BBA', 'BEE', 'BME', 'BCE', 'BCH', 'BPH'
+  ];
 
   return (
     <>
@@ -132,23 +156,43 @@ export default function LoginPage() {
                 </button>
               </div>
               
-              <div className="form-group">
+              <div className="form-group" style={{ display: 'flex', gap: '10px' }}>
+                <select 
+                  className="form-input"
+                  value={batch}
+                  onChange={(e) => setBatch(e.target.value)}
+                  style={{ flex: 1 }}
+                >
+                  <option value="" disabled>Select Batch</option>
+                  {batchOptions.map((option) => (
+                    <option key={option} value={option}>{option}</option>
+                  ))}
+                </select>
+                
+                <select 
+                  className="form-input"
+                  value={department}
+                  onChange={(e) => setDepartment(e.target.value)}
+                  style={{ flex: 1 }}
+                >
+                  <option value="" disabled>Select Department</option>
+                  {departmentOptions.map((option) => (
+                    <option key={option} value={option}>{option}</option>
+                  ))}
+                </select>
+                
                 <input 
                   type="text" 
-                  placeholder="CIIT/FA00-BBB-000/WAH" 
+                  placeholder="000" 
                   className="form-input" 
-                  value={registrationNumber}
-                  onChange={(e) => setRegistrationNumber(e.target.value)}
-                />
-              </div>
-              
-              <div className="form-group">
-                <input 
-                  type="text" 
-                  placeholder="FA23-BSE-007" 
-                  className="form-input" 
-                  value={registrationNumber}
-                  onChange={(e) => setRegistrationNumber(e.target.value)}
+                  value={number}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (/^\d{0,3}$/.test(value)) {
+                      setNumber(value);
+                    }
+                  }}
+                  style={{ flex: 1 }}
                 />
               </div>
               
@@ -168,17 +212,11 @@ export default function LoginPage() {
                 </div>
               )}
               
-              <div className="captcha-box">
-                <div className="captcha-placeholder">
-                  <input type="checkbox" id="captcha" />
-                  <label htmlFor="captcha">I'm not a robot</label>
-                </div>
-              </div>
+           
               
               <div className="form-links">
                 <a href="#" className="forgot-link">Forgot Password ? Click Here!</a>
-                <a href="#" className="parent-link">For Parent Console</a>
-              </div>
+  <Link to="/signup" className="parent-link">Don't have an account? Sign Up</Link>              </div>
               
               <button 
                 type="submit" 

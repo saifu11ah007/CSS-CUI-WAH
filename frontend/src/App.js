@@ -3,27 +3,25 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import SignupPage from './pages/SignupPage.jsx';
 import VerifyOtpPage from './pages/VerifyOtp.jsx';
 import LoginPage from './pages/LoginPage.jsx';
-import './index.css';  // Or App.css
-// Redirect logged-in users away from login/signup
+import './index.css';
+
+// Redirect logged-in users away from login/signup, and non-logged-in users to login
 const RedirectIfLoggedIn = ({ children }) => {
-  const isLoggedIn = !!localStorage.getItem('authToken');
-  return isLoggedIn ? <Navigate to="/" replace /> : children;
+  const isLoggedIn = !!localStorage.getItem('token');
+  return isLoggedIn ? <Navigate to="/abc" replace /> : children;
+};
+
+// Redirect non-logged-in users from root to login
+const RootRedirect = () => {
+  const isLoggedIn = !!localStorage.getItem('token');
+  return isLoggedIn ? <Navigate to="/abc" replace /> : <Navigate to="/login" replace />;
 };
 
 function App() {
   return (
     <Router>
       <Routes>
-
-         {/* <Route 
-          path="/admin/dashboard" 
-          element={
-            <RequireAdminAuth>
-              <AdminDashboard />
-            </RequireAdminAuth>
-          } 
-        /> */}
-        <Route path="/" element={<SignupPage />} />
+        <Route path="/" element={<RootRedirect />} />
         <Route
           path="/login"
           element={
@@ -32,7 +30,6 @@ function App() {
             </RedirectIfLoggedIn>
           }
         />
-        <Route path="/signup/verify-otp" element={<VerifyOtpPage />} />
         <Route
           path="/signup"
           element={
@@ -41,11 +38,12 @@ function App() {
             </RedirectIfLoggedIn>
           }
         />
-        {/* <Route path="/otp" element={<OTP />} />
-        <Route path="/signup/completion" element={<CompleteSignup />} /> */}
+        <Route path="/signup/verify-otp" element={<VerifyOtpPage />} />
+        {/* Placeholder for /abc route after login */}
+        <Route path="/abc" element={<div>Placeholder Home Page</div>} />
       </Routes>
     </Router>
   );
 }
 
-export default App; 
+export default App;
