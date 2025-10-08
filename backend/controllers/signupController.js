@@ -197,7 +197,10 @@ const uploadUniId = async (req, res) => {
       program: tempUser.program,
       password: tempUser.password,
       verificationMethod: tempUser.verificationMethod,
-      universityIdCard: file[0].key, // Save only the URL string
+      universityIdCard: {
+        fileUrl: file[0].key,
+        verified: false, // Can be set to true if you want immediate verification
+      },
       isVerified: true, // User is now verified immediately
     });
 
