@@ -19,7 +19,7 @@ export default function LoginPage() {
     if (token) {
       // Use direct path for local testing, adjust for Netlify
       const isLocal = window.location.hostname === 'localhost';
-      window.location.href = isLocal ? '/Homepage/home.html' : '/home';
+      window.location.href = isLocal ? '/Homepage/home.html';
     }
   }, []);
 
