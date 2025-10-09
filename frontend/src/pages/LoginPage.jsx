@@ -62,7 +62,7 @@ export default function LoginPage() {
 
       // Redirect based on environment
       const isLocal = window.location.hostname === 'localhost';
-      window.location.href = isLocal ? '/Homepage/home.html' : '/home';
+      window.location.href = isLocal ? '/Homepage/home.html' : '/Homepage/home.html';
     } catch (err) {
       setIsLoading(false);
       setPassword(''); // Clear password field on error
