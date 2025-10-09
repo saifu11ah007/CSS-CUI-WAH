@@ -14,7 +14,7 @@ const RedirectIfLoggedIn = ({ children }) => {
 // Redirect non-logged-in users from root to login
 const RootRedirect = () => {
   const isLoggedIn = !!localStorage.getItem('token');
-  return isLoggedIn ? <Navigate to="/abc" replace /> : <Navigate to="/login" replace />;
+  return isLoggedIn ? <Navigate to="/Homepage/home.html" replace /> : <Navigate to="/login" replace />;
 };
 
 function App() {
@@ -40,7 +40,6 @@ function App() {
         />
         <Route path="/signup/verify-otp" element={<VerifyOtpPage />} />
         {/* Placeholder for /abc route after login */}
-        <Route path="/abc" element={<div>Placeholder Home Page</div>} />
       </Routes>
     </Router>
   );
