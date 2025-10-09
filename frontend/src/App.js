@@ -14,7 +14,7 @@ const RedirectIfLoggedIn = ({ children }) => {
 // Redirect non-logged-in users from root to login
 const RootRedirect = () => {
   const isLoggedIn = !!localStorage.getItem('token');
-  return isLoggedIn ? <Navigate to="/Homepage/home.html" replace /> : <Navigate to="/login" replace />;
+  return isLoggedIn ? <Navigate to="/homepage/home" replace /> : <Navigate to="/login" replace />;
 };
 
 function App() {
