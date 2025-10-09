@@ -48,7 +48,7 @@ const loginUser = async (req, res) => {
         program: user.program,
       },
       process.env.JWT_SECRET,
-      { expiresIn: '1h' } // Token expires in 1 hour
+      { expiresIn: '180s' } // Token expires in 1 hour
     );
 
     // Return success response

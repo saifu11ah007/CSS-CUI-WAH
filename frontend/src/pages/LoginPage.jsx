@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import './login.css';
 import './gallery.css';
-
+import jwtDecode from 'jwt-decode';
 export default function LoginPage() {
   const [batch, setBatch] = useState('');
   const [department, setDepartment] = useState('');
@@ -14,6 +14,36 @@ export default function LoginPage() {
   const navigate = useNavigate();
 
   // Check for existing token on component mount
+  useEffect(() => {
+    const checkTokenExpiration = () => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        try {
+          const decodedToken = jwtDecode(token);
+          const currentTime = Date.now() / 1000; // Convert to seconds
+          if (decodedToken.exp < currentTime) {
+            // Token expired, log out
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '/login';
+          } else {
+            // Token valid, redirect to /home
+            window.location.href = '/home';
+          }
+        } catch (error) {
+          // Invalid token, log out
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          window.location.href = '/login';
+        }
+      }
+    };
+
+    checkTokenExpiration(); // Run on mount
+    const interval = setInterval(checkTokenExpiration, 30000); // Check every 30 seconds
+
+    return () => clearInterval(interval); // Cleanup on unmount
+  }, []);
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
