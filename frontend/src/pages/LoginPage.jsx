@@ -3,7 +3,8 @@ import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import './login.css';
 import './gallery.css';
-import jwtDecode from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
+
 export default function LoginPage() {
   const [batch, setBatch] = useState('');
   const [department, setDepartment] = useState('');
@@ -245,7 +246,7 @@ export default function LoginPage() {
 
 
               <div className="form-links">
-                <a href="#" className="forgot-link">Forgot Password ? Click Here!</a>
+                {/* <a href="#" className="forgot-link">Forgot Password ? Click Here!</a> */}
                 <Link to="/signup" className="parent-link">Don't have an account? Sign Up</Link>              </div>
 
               <button
