@@ -11,7 +11,7 @@ body {
     padding: 20px;
 }
 
-tab-btnheader {
+.header {
     display: flex;
     justify-content: space-between;
     align-items: center;
