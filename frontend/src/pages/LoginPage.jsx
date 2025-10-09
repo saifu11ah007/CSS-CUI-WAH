@@ -178,14 +178,7 @@ export default function LoginPage() {
           <div className="login-form-container">
             <h2 className="form-title">Student Login</h2>
             <div id="loginForm">
-              <div className="tab-buttons">
-                <button type="button" className="tab-btn active" onClick={handleTabClick}>
-                  By Roll No
-                </button>
-                <button type="button" className="tab-btn" onClick={handleTabClick}>
-                  By List
-                </button>
-              </div>
+
 
               <div className="form-group" style={{ display: 'flex', gap: '10px' }}>
                 <select

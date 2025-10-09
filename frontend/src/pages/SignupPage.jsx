@@ -1,6 +1,6 @@
 // Updated SignupPage.jsx
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import './signup.css'; // Assuming the CSS from the provided file is reusable
 
@@ -82,7 +82,10 @@ export default function SignupPage() {
       navigate('/home');
     }
   }, [isLoggedIn, navigate]);
-
+  const handleTabClick = (e) => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    e.currentTarget.classList.add('active');
+  };
   const handleRegChange = (field) => (e) => {
     const value = e.target.value;
     if (field === 'number') {
@@ -219,7 +222,7 @@ export default function SignupPage() {
       <div className="header">
         <div className="logo-section">
           <div className="logo">
-                <img src="/image.png" alt="COMSATS Sports Society Logo" />
+            <img src="/image.png" alt="COMSATS Sports Society Logo" />
           </div>
           <div className="university-name">
             <h1>COMSATS SPORTS</h1>
@@ -234,23 +237,16 @@ export default function SignupPage() {
             <div>
               <h1 className="welcome-title">Join the<br />COMSATS Sports Society</h1>
               <p className="welcome-subtitle">One Team One Dream</p>
-              
-              <div className="benefits-list">
-                <div className="benefit-item">
-                  <strong>🏅</strong> Access to all sports facilities and equipment
-                </div>
-                <div className="benefit-item">
-                  <strong>🎯</strong> Participate in inter-university tournaments
-                </div>
-                <div className="benefit-item">
-                  <strong>💪</strong> Free training sessions with professional coaches
-                </div>
-                <div className="benefit-item">
-                  <strong>🏆</strong> Compete for prizes and recognition
-                </div>
-                <div className="benefit-item">
-                  <strong>🤝</strong> Build lifelong friendships and networks
-                </div>
+
+            </div>
+          </div>
+          <div className="content-area">
+            <div className="reel-container">
+              <div className="reel-item">
+                <img src="/grouppic.jpg" alt="" width="100%" />
+              </div>
+              <div className="reel-item">
+                <img src="/grouppic.jpg" alt="" width="100%" />
               </div>
             </div>
           </div>
@@ -260,7 +256,7 @@ export default function SignupPage() {
           <h2 className="form-title">Student Registration</h2>
           {success && <div className="success-message">{success}</div>}
           {errors.general && <div className="error-message">{errors.general}</div>}
-          
+
           <form onSubmit={handleSubmit}>
             {/* Registration Number Builder Section - Horizontal Layout */}
             <div className="form-group">
@@ -399,29 +395,40 @@ export default function SignupPage() {
 
             <div className="form-group">
               <label className="form-label">Verification Method *</label>
+
               <div className="radio-group">
-                <label>
-                  <input
-                    type="radio"
-                    name="verificationMethod"
-                    value="OTP"
-                    checked={formData.verificationMethod === 'OTP'}
-                    onChange={handleRadioChange}
-                    disabled={loading}
-                  />
-                  Email OTP
-                </label>
-                <label>
-                  <input
-                    type="radio"
-                    name="verificationMethod"
-                    value="UniversityID"
-                    checked={formData.verificationMethod === 'UniversityID'}
-                    onChange={handleRadioChange}
-                    disabled={loading}
-                  />
-                  University ID Card
-                </label>
+                <div className="tab-buttons">
+                  <button type="button" className="tab-btn active" onClick={handleTabClick}>
+                    <label>
+                      <input
+                        type="radio"
+                        name="verificationMethod"
+                        className="tab-btn active"
+                        value="OTP"
+                        checked={formData.verificationMethod === 'OTP'}
+                        onChange={handleRadioChange}
+                        disabled={loading}
+                      />
+                      Email OTP
+                    </label>
+                  </button>
+                  <button type="button" className="tab-btn" onClick={handleTabClick}>
+                    <label>
+                      <input
+                        type="radio"
+                        name="verificationMethod"
+                        value="UniversityID"
+                        className="tab-btn"
+                        checked={formData.verificationMethod === 'UniversityID'}
+                        onChange={handleRadioChange}
+                        disabled={loading}
+                      />
+                      University ID Card
+                    </label>
+                  </button>
+                </div>
+
+
               </div>
               {errors.verificationMethod && <span className="error-text">{errors.verificationMethod}</span>}
             </div>
@@ -447,7 +454,8 @@ export default function SignupPage() {
           </form>
 
           <div className="login-link">
-            Already have an account? <a href="/login">Login here</a>
+            <Link to="/login" className="parent-link">Already have an account? Login</Link>
+
           </div>
         </div>
       </div>

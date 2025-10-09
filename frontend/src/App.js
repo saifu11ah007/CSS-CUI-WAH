@@ -25,17 +25,13 @@ function App() {
         <Route
           path="/login"
           element={
-            <RedirectIfLoggedIn>
-              <LoginPage />
-            </RedirectIfLoggedIn>
+            <LoginPage />
           }
         />
         <Route
           path="/signup"
           element={
-            <RedirectIfLoggedIn>
-              <SignupPage />
-            </RedirectIfLoggedIn>
+            <SignupPage />
           }
         />
         <Route path="/signup/verify-otp" element={<VerifyOtpPage />} />
